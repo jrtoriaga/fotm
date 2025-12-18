@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 
 export default function ProfitabilityPage() {
   const { season, setSeason, colors } = useTheme();
-  const SEASON_DAYS = 28;
+  const SEASON_DAYS = 30;
   const CROPS_PER_BAG = 9;
 
   const filteredCrops = crops.filter((crop) => crop.season === season);
@@ -108,7 +108,7 @@ export default function ProfitabilityPage() {
         </table>
       </div>
         <p className="text-xs text-stone-400 mt-4 text-center italic">
-          *Calculations assume a 28-day season and 1 seed bag yielding 9 crops.
+          *Calculations assume a 30-day season and 1 seed bag yielding 9 crops.
         </p>
     </div>
   );
