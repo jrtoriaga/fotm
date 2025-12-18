@@ -5,6 +5,7 @@ import CalendarPage from "./pages/Calendar";
 import CropsPage from "./pages/Crops";
 import BirthdayCalendarPage from "./pages/BirthdayCalendar";
 import CharactersPage from "./pages/Characters";
+import ProfitabilityPage from "./pages/Profitability";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
         <Route path="/crops" element={<CropsPage />} />
         <Route path="/birthdays" element={<BirthdayCalendarPage />} />
         <Route path="/characters" element={<CharactersPage />} />
-
+        <Route path="/profitability" element={<ProfitabilityPage />} />
       </Route>
     </Routes>
   );

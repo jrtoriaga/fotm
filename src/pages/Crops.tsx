@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import type { ReferenceCrop, Season } from "../types/app-types";
 import { getAllCrops } from "../lib/repo";
 import clsx from "clsx";
+import { useTheme } from "../context/ThemeContext";
 
 export default function CropsPage() {
+  const { colors } = useTheme();
   const [stateCrops, setCrops] = useState<Map<Season, ReferenceCrop[]>>(
     new Map()
   );
@@ -22,86 +24,52 @@ export default function CropsPage() {
   }, []);
 
   return (
-    <div className="mt-10 px-4 h-[calc(100vh-64px-40px)] overflow-hidden">
-      {/* Table */}
-      <div className="overflow-scroll h-[calc(100vh-64px-40px-20px)]">
-        <div className="h-fit w-fit">
-          {/* Heading */}
-          <div className="flex gap-2 w-fit">
-            <span className="w-[6rem] px-2 py-1 border flex items-center">
-              Name
-            </span>
-            <span className="w-[6rem] px-2 py-1 border flex items-center">
-              Harvest Time
-            </span>
-            <span className="w-[6rem] px-2 py-1 border flex items-center">
-              Regrowth Time
-            </span>
-            <span className="w-[6rem] px-2 py-1 border flex items-center">
-              Seed Cost
-            </span>
-            <span className="w-[6rem] px-2 py-1 border flex items-center">
-              Sell Price
-            </span>
-          </div>
-
-          {/* Contents */}
-          <div className="flex flex-col gap-4 mt-4">
-            {stateCrops &&
-              [...stateCrops.entries()].map(([key, value], i) => {
-                return (
-                  <div key={i}>
-                    <span>{key}</span>
-
-                    {value &&
-                      value.map((item, i) => (
-                        <div key={i} className="flex gap-2 w-fit">
-                          <span
-                            className={clsx(
-                              "w-[6rem] px-2 py-1 border",
-                              i === value.length - 1 ? "border-b" : "border-b-0"
-                            )}
-                          >
-                            {item.name}
-                          </span>
-                          <span
-                            className={clsx(
-                              "w-[6rem] px-2 py-1 border text-center",
-                              i === value.length - 1 ? "border-b" : "border-b-0"
-                            )}
-                          >
-                            {item.harvest_time}
-                          </span>
-                          <span
-                            className={clsx(
-                              "w-[6rem] px-2 py-1 border text-center",
-                              i === value.length - 1 ? "border-b" : "border-b-0"
-                            )}
-                          >
-                            {item.regrowth_time}
-                          </span>
-                          <span
-                            className={clsx(
-                              "w-[6rem] px-2 py-1 border text-center",
-                              i === value.length - 1 ? "border-b" : "border-b-0"
-                            )}
-                          >
-                            {item.seed_cost}G
-                          </span>
-                          <span
-                            className={clsx(
-                              "w-[6rem] px-2 py-1 border text-center",
-                              i === value.length - 1 ? "border-b" : "border-b-0"
-                            )}
-                          >
-                            {item.sell_price}G
-                          </span>
-                        </div>
-                      ))}
+    <div className="mt-6 px-4 h-[calc(100vh-64px-24px)] overflow-hidden">
+      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
+        Crop Almanac
+      </h3>
+      
+      <div className="overflow-y-auto h-[calc(100vh-64px-80px)] pr-2 pb-10">
+        <div className="flex flex-col gap-8">
+          {stateCrops &&
+            [...stateCrops.entries()].map(([key, value], i) => {
+              if (!value || value.length === 0) return null;
+              
+              return (
+                <div key={i} className="bg-white rounded-xl shadow-md border border-stone-200 overflow-hidden">
+                  <div className={clsx("px-4 py-2 font-bold text-lg border-b border-stone-100 bg-stone-50", colors.text)}>
+                    {key}
                   </div>
-                );
-              })}
-          </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-stone-500 uppercase bg-stone-50/50">
+                        <tr>
+                          <th className="px-4 py-2 font-medium">Name</th>
+                          <th className="px-4 py-2 font-medium text-center">Harvest</th>
+                          <th className="px-4 py-2 font-medium text-center">Regrow</th>
+                          <th className="px-4 py-2 font-medium text-center">Seed</th>
+                          <th className="px-4 py-2 font-medium text-center">Sell</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100">
+                        {value.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-stone-50 transition-colors">
+                            <td className="px-4 py-3 font-bold text-stone-700">{item.name}</td>
+                            <td className="px-4 py-3 text-center text-stone-600">{item.harvest_time}d</td>
+                            <td className="px-4 py-3 text-center text-stone-600">
+                              {item.regrowth_time ? `${item.regrowth_time}d` : "-"}
+                            </td>
+                            <td className="px-4 py-3 text-center text-stone-600">{item.seed_cost}g</td>
+                            <td className="px-4 py-3 text-center text-stone-600">{item.sell_price}g</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>
