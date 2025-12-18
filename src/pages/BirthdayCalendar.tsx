@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { getAllCharacters } from "../lib/repo";
 import type { Character, Season } from "../types/app-types";
-import BirthdayModal from "../components/BirthdaysModal";
+import CharacterModal from "../components/CharacterModal";
 import { useTheme } from "../context/ThemeContext";
 
 export default function BirthdayCalendarPage() {
@@ -125,12 +125,12 @@ export default function BirthdayCalendarPage() {
         })}
       </div>
 
-      <div className={shown && activeBDay ? "block" : "hidden"}>
-        <BirthdayModal
-          setIsShown={setIsShown}
-          characters={days.get(activeBDay)!}
-        />
-      </div>
+      <CharacterModal
+        isOpen={shown}
+        onClose={() => setIsShown(false)}
+        characters={days.get(activeBDay) || []}
+        title="Birthdays"
+      />
     </div>
   );
 }

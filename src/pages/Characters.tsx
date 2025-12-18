@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Character } from "../types/app-types";
 import { getAllCharacters } from "../lib/repo";
-import CharactersModal from "../components/CharactersModal";
+import CharacterModal from "../components/CharacterModal";
 import { useTheme } from "../context/ThemeContext";
 import clsx from "clsx";
 
@@ -75,10 +75,10 @@ export default function CharactersPage() {
           ))}
       </div>
 
-      <CharactersModal
-        isShown={isShown}
-        setShown={setIsShown}
-        character={selectedCharacter}
+      <CharacterModal
+        isOpen={isShown}
+        onClose={() => setIsShown(false)}
+        characters={selectedCharacter ? [selectedCharacter] : []}
       />
     </div>
   );
