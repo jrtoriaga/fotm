@@ -1,10 +1,10 @@
-import { useState } from "react";
 import crops from "../data/crops";
 import { Season } from "../types/app-types";
 import clsx from "clsx";
+import { useTheme } from "../context/ThemeContext";
 
 export default function ProfitabilityPage() {
-  const [season, setSeason] = useState<Season>("Spring");
+  const { season, setSeason, colors } = useTheme();
   const SEASON_DAYS = 28;
   const CROPS_PER_BAG = 9;
 
@@ -39,23 +39,27 @@ export default function ProfitabilityPage() {
   };
 
   // Sort by profit descending
-  const sortedCrops = filteredCrops.map(c => ({...c, ...calculateMetrics(c)})).sort((a, b) => b.profit - a.profit);
+  const sortedCrops = filteredCrops
+    .map((c) => ({ ...c, ...calculateMetrics(c) }))
+    .sort((a, b) => b.profit - a.profit);
 
   return (
     <div className="p-4 h-[calc(100vh-64px)] overflow-scroll">
-      <h3 className="mb-4 text-md font-semibold">Crop Profitability</h3>
+      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
+        Crop Profitability
+      </h3>
 
       {/* Season Selector */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">
         {(["Spring", "Summer", "Fall"] as Season[]).map((s) => (
           <button
             key={s}
             onClick={() => setSeason(s)}
             className={clsx(
-              "px-4 py-2 rounded text-sm font-medium transition-colors",
+              "px-4 py-2 rounded-lg text-sm font-bold transition-all",
               season === s
-                ? "bg-green-500 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? `${colors.secondary} ${colors.primary} shadow-sm`
+                : "text-stone-400 hover:bg-stone-100"
             )}
           >
             {s}
@@ -63,42 +67,49 @@ export default function ProfitabilityPage() {
         ))}
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl shadow-md border border-stone-200 bg-white">
         <table className="w-full text-sm text-left">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+          <thead className="text-xs text-stone-500 uppercase bg-stone-100/50 border-b border-stone-200">
             <tr>
               <th className="px-4 py-3">Crop</th>
               <th className="px-4 py-3">Cost</th>
               <th className="px-4 py-3">Sell</th>
               <th className="px-4 py-3">Harvests</th>
-              <th className="px-4 py-3 text-right">Season Profit (3x3)</th>
+              <th className="px-4 py-3 text-right">Season Profit</th>
               <th className="px-4 py-3 text-right">Gold/Day</th>
             </tr>
           </thead>
           <tbody>
             {sortedCrops.map((crop) => (
-              <tr key={crop.name} className="bg-white border-b hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-900">
+              <tr
+                key={crop.name}
+                className="bg-white border-b border-stone-100 hover:bg-stone-50 transition-colors last:border-0"
+              >
+                <td className="px-4 py-3 font-bold text-stone-700">
                   {crop.name}
-                  {crop.regrowth_time && <span className="text-xs text-gray-500 block">Regrows: {crop.regrowth_time}d</span>}
+                  {crop.regrowth_time && (
+                    <span className="text-xs font-normal text-stone-400 block">
+                      Regrows: {crop.regrowth_time}d
+                    </span>
+                  )}
                 </td>
-                <td className="px-4 py-3">{crop.seed_cost}g</td>
-                <td className="px-4 py-3">{crop.sell_price}g</td>
-                <td className="px-4 py-3">{crop.harvests}</td>
-                <td className="px-4 py-3 text-right font-bold text-green-600">
+                <td className="px-4 py-3 text-stone-600">{crop.seed_cost}g</td>
+                <td className="px-4 py-3 text-stone-600">{crop.sell_price}g</td>
+                <td className="px-4 py-3 text-stone-600">{crop.harvests}</td>
+                <td className={clsx("px-4 py-3 text-right font-bold", colors.primary)}>
                   {crop.profit.toLocaleString()}g
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right text-stone-500">
                   {crop.goldPerDay}g
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="text-xs text-gray-400 mt-4 text-center">
+      </div>
+        <p className="text-xs text-stone-400 mt-4 text-center italic">
           *Calculations assume a 28-day season and 1 seed bag yielding 9 crops.
         </p>
-      </div>
     </div>
   );
 }

@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 
-import type { CalendarCrop, Crop, Season } from "../types/app-types";
+import type { CalendarCrop, Crop } from "../types/app-types";
 import AddCropFormModal from "../components/AddCropForm";
 import { deleteCropById, getAllCropsBySeason } from "../lib/db";
 import { convertDBCrop, createCalendarCropFromRegrowing } from "../lib/utils";
+import { useTheme } from "../context/ThemeContext";
 
 function CalendarPage() {
+  const { season, setSeason, colors } = useTheme();
+  
   // calendar obj
   const [showModal, setShowForm] = useState(false);
-  const [season, setSeason] = useState<Season | undefined>();
 
   // Update: Use Map for Calendar days for efficiency
-  // Future: I wonder if this can be combined with birthday events for a singular calendar
   const [calendarDays, setCalendarDays] = useState<Map<number, CalendarCrop[]>>(
     new Map<number, CalendarCrop[]>()
   );
@@ -29,10 +30,6 @@ function CalendarPage() {
 
     // Feat: Hightlight day
     setCurrentDay(Number(localStorage.getItem("currentDay") || 0));
-
-    // set the current season from local storage
-
-    setSeason((localStorage.getItem("currentSeason") as Season) || undefined);
   }, []);
 
   // Feat: Highlight day
@@ -59,7 +56,6 @@ function CalendarPage() {
   }, []);
 
   // A handy function to refresh the calendar
-  // TODO: A more efficient way to create the calendar
   const refreshCalendar = useCallback(async () => {
     if (!season) {
       setEmptyCalendar();
@@ -102,32 +98,70 @@ function CalendarPage() {
       });
 
       setCalendarDays(newDays);
-      localStorage.setItem("currentSeason", season);
     }
   }, [season]);
 
   return (
     <>
-      <div className="w-full mt-5 px-4 gap-4 flex flex-col mb-4">
-        {/* Season select */}
-        <div>
-          <select
-            id="season"
-            className="py-2"
-            onChange={(e) => setSeason(e.target.value as Season | undefined)}
-            value={season}
+      <div className="px-4 my-5 pb-10">
+        <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
+          Crop Calendar
+        </h3>
+
+        {/* Controls */}
+        <div className="flex flex-wrap gap-3 mb-6 items-center">
+          {/* Season select */}
+          <div className="bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">
+            <select
+              id="season"
+              className={clsx(
+                "py-2 px-4 bg-transparent font-bold focus:outline-none cursor-pointer",
+                colors.text
+              )}
+              onChange={(e) => setSeason(e.target.value as any)}
+              value={season}
+            >
+              {["Spring", "Summer", "Fall", "Winter"].map((s, i) => (
+                <option value={s} key={i}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/*  Add crop button */}
+          <button
+            onClick={() => setShowForm(true)}
+            className={clsx(
+              "px-4 py-3 rounded-xl font-bold text-white shadow-sm transition-transform active:scale-95",
+              "bg-green-600 hover:bg-green-700"
+            )}
           >
-            <option value="">Select Season</option>
-            {["Spring", "Summer", "Fall"].map((season, i) => (
-              <option value={season} key={i}>
-                {season}
-              </option>
-            ))}
-          </select>
+            Plant Crop
+          </button>
+
+          {/*  Delete crop button */}
+          <button
+            onClick={() =>
+              deleteCropById(selectedCrop).then(() => {
+                refreshCalendar();
+                setSelectedCrop(0);
+              })
+            }
+            className={clsx(
+              "px-4 py-3 rounded-xl font-bold text-white shadow-sm transition-all active:scale-95",
+              selectedCrop 
+                ? "bg-red-500 hover:bg-red-600" 
+                : "bg-stone-300 cursor-not-allowed opacity-50"
+            )}
+            disabled={!selectedCrop}
+          >
+            Delete Selected
+          </button>
         </div>
 
         {/* Calendar */}
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap bg-white rounded-xl shadow-md overflow-hidden border border-stone-200">
           {calendarDays &&
             [...calendarDays.entries()].map(([day, crops], i) => {
               const isFifth = (i + 1) % 5 === 0;
@@ -135,39 +169,43 @@ function CalendarPage() {
               return (
                 <div
                   className={clsx(
-                    "border-t border-l w-1/5 aspect-square text-xs flex flex-col gap-2 overflow-y-hidden",
-                    isFifth && "border-r",
-                    isLastRow && "border-b"
+                    "w-1/5 aspect-square text-xs flex flex-col gap-1 p-1 transition-colors hover:bg-stone-50",
+                    !isLastRow && "border-b border-stone-100",
+                    !isFifth && "border-r border-stone-100"
                   )}
                   key={i}
+                  onClick={() => setCurrentDay(day)}
                 >
                   <span
-                    onClick={() => setCurrentDay(day)}
                     className={clsx(
-                      "relative flex items-center justify-center w-6 h-6 select-none",
-                      day === currentDay &&
-                        "text-white before:content-[''] before:absolute before:w-6 before:h-6 before:bg-red-500 before:rounded-full before:-z-10"
+                      "relative flex items-center justify-center w-6 h-6 select-none rounded-full font-bold transition-all cursor-pointer",
+                      day === currentDay
+                        ? "bg-red-500 text-white shadow-sm"
+                        : "text-stone-400"
                     )}
                   >
                     {day}
                   </span>
-                  {/* crop */}
-                  <div className="w-full flex flex-col overflow-y-scroll gap-1">
+                  
+                  {/* crop list */}
+                  <div className="w-full flex flex-col overflow-y-auto gap-1 h-full">
                     {crops &&
                       crops.map((crop, i) => (
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             if (selectedCrop === crop.id) {
                               setSelectedCrop(0);
                             } else setSelectedCrop(crop.id!);
                           }}
                           className={clsx(
-                            " p-1 ",
-                            crop.plantedDate === day && "bg-green-100",
-                            crop.harvestDate === day && "bg-amber-100",
-                            selectedCrop === crop.id && "!bg-red-300"
+                            "px-1.5 py-0.5 rounded text-[10px] font-medium text-left truncate transition-colors border border-transparent",
+                            crop.plantedDate === day && "bg-lime-100 text-lime-800",
+                            crop.harvestDate === day && "bg-amber-100 text-amber-800",
+                            selectedCrop === crop.id && "!bg-red-500 !text-white shadow-sm !border-red-600"
                           )}
                           key={i}
+                          title={crop.name}
                         >
                           {crop.name}
                         </button>
@@ -177,40 +215,15 @@ function CalendarPage() {
               );
             })}
         </div>
-
-        {/*  Add crop button */}
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-2 py-4 bg-green-600 text-white disabled:bg-gray-400"
-          disabled={!season}
-        >
-          Plant Crop
-        </button>
-
-        {/*  Delete crop button */}
-        <button
-          onClick={() =>
-            deleteCropById(selectedCrop).then(() => {
-              refreshCalendar();
-              setSelectedCrop(0);
-            })
-          }
-          className="px-2 py-4 bg-red-600 text-white disabled:bg-gray-400"
-          disabled={!selectedCrop}
-        >
-          Delete Crop
-        </button>
       </div>
 
-
-      {/* TODO: Return this component to only showing null and refreshing current day because it contains expensive calculation, apparently */}
-        <AddCropFormModal
-          season={season as Season}
-          hideForm={() => setShowForm(false)}
-          refreshCalendar={refreshCalendar}
-          currentDay={currentDay}
-          showModal={showModal && !!season}
-        />
+      <AddCropFormModal
+        season={season}
+        hideForm={() => setShowForm(false)}
+        refreshCalendar={refreshCalendar}
+        currentDay={currentDay}
+        showModal={showModal}
+      />
     </>
   );
 }

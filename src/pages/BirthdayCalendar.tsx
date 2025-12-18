@@ -3,33 +3,24 @@ import { useEffect, useState } from "react";
 import { getAllCharacters } from "../lib/repo";
 import type { Character, Season } from "../types/app-types";
 import BirthdayModal from "../components/BirthdaysModal";
+import { useTheme } from "../context/ThemeContext";
 
 export default function BirthdayCalendarPage() {
+  const { season, setSeason, colors } = useTheme();
   const [days, setDays] = useState<Map<number, Character[]>>(new Map());
-  const [season, setSeason] = useState<Season | undefined>();
   const [shown, setIsShown] = useState(false);
-
   const [activeBDay, setActiveBDay] = useState(0);
-
-  // Feat: Highlight day
   const [currentDay, setCurrentDay] = useState(0);
 
-  //   Initial run
-
   useEffect(() => {
-    if (!season) {
-      setSeason(localStorage.getItem("birthdaySeason") as Season);
-    }
-
-    // Feat: Hightlight day
     setCurrentDay(Number(localStorage.getItem("currentDay") || 0));
   }, []);
-    // Feat: Highlight day
+
   useEffect(() => {
-    if (currentDay){
-      localStorage.setItem('currentDay', currentDay.toString())
+    if (currentDay) {
+      localStorage.setItem("currentDay", currentDay.toString());
     }
-  }, [currentDay])
+  }, [currentDay]);
 
   useEffect(() => {
     const arr = Array.from(
@@ -38,7 +29,6 @@ export default function BirthdayCalendarPage() {
     );
 
     const newDays = new Map(arr);
-
     const characters = getAllCharacters(season);
 
     characters.forEach((character) =>
@@ -48,70 +38,82 @@ export default function BirthdayCalendarPage() {
     setDays(newDays);
   }, [season]);
 
-  // save active season change
-  useEffect(() => {
-    if (season) localStorage.setItem("birthdaySeason", season);
-  }, [season]);
-
   return (
-    <div className=" px-4 my-5">
+    <div className="px-4 my-5 pb-10">
+      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
+        Birthdays
+      </h3>
+
       {/* Select */}
-      <div className="mb-4 ">
+      <div className="mb-6 bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">
         <select
           id="season"
-          className="py-2 focus-visible:outline-none"
+          className={clsx(
+            "py-2 px-4 bg-transparent font-bold focus:outline-none cursor-pointer",
+            colors.text
+          )}
           onChange={(e) => setSeason(e.target.value as Season)}
           value={season || ""}
         >
-          <option value="">Select Season</option>
-          {["Spring", "Summer", "Fall", "Winter"].map((season, i) => (
-            <option value={season} key={i}>
-              {season}
+          {["Spring", "Summer", "Fall", "Winter"].map((s, i) => (
+            <option value={s} key={i}>
+              {s}
             </option>
           ))}
         </select>
       </div>
 
       {/* Calendar */}
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap bg-white rounded-xl shadow-md overflow-hidden border border-stone-200">
         {[...days.entries()].map(([day, events], i) => {
           const isFifth = (i + 1) % 5 === 0;
           const isLastRow = day >= 26;
+          const hasEvents = events.length > 0;
+
           return (
             <div
               onClick={() => {
-                if (events.length !== 0) {
+                if (hasEvents) {
                   setActiveBDay(day);
                   setIsShown(true);
                 }
               }}
               className={clsx(
-                "border-t border-l w-1/5 aspect-square text-xs flex flex-col gap-2 overflow-y-hidden",
-                isFifth && "border-r",
-                isLastRow && "border-b"
+                "w-1/5 aspect-square text-xs flex flex-col gap-1 p-1 transition-colors",
+                !isLastRow && "border-b border-stone-100",
+                !isFifth && "border-r border-stone-100",
+                hasEvents && "cursor-pointer hover:bg-stone-50"
               )}
               key={i}
             >
               <span
-                onClick={(e) => {e.stopPropagation();setCurrentDay(day)}}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentDay(day);
+                }}
                 className={clsx(
-                  "relative flex items-center justify-center w-6 h-6 select-none",
-                  day === currentDay &&
-                    "text-white before:content-[''] before:absolute before:w-6 before:h-6 before:bg-red-500 before:rounded-full before:-z-10"
+                  "relative flex items-center justify-center w-6 h-6 select-none rounded-full font-bold transition-all",
+                  day === currentDay
+                    ? "bg-red-500 text-white shadow-sm"
+                    : "text-stone-400"
                 )}
               >
                 {day}
               </span>
-              {/* Birthdays */}
 
-              {events && season && (
-                <div className="flex flex-wrap gap-1 overflow-scroll p-1">
-                  {/* Birthday */}
+              {/* Birthdays */}
+              {hasEvents && (
+                <div className="flex flex-wrap gap-1 justify-center">
                   {events.map((event, i) => (
-                    // For now, it's just this. next time it will be an avatar
                     <div
-                      className="border w-1/4 h-auto aspect-square flex items-center justify-center"
+                      className={clsx(
+                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border shadow-sm",
+                        colors.secondary,
+                        colors.primary,
+                        colors.accent
+                      )}
                       key={`br-${i}`}
+                      title={event.name}
                     >
                       {event.name[0]}
                     </div>
@@ -124,7 +126,6 @@ export default function BirthdayCalendarPage() {
       </div>
 
       <div className={shown && activeBDay ? "block" : "hidden"}>
-        {/* From the above, if activateDay is zero, this won't get shown anyway*/}
         <BirthdayModal
           setIsShown={setIsShown}
           characters={days.get(activeBDay)!}
