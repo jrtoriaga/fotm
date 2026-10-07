@@ -20,21 +20,23 @@ export default function CharacterModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="character-modal-title">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
+        aria-label="Close character details"
       />
 
       {/* Modal Container */}
       <div className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-[#ddcfb4] bg-[#fffaf0] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
-          <h3 className={clsx("text-lg font-bold", colors.primary)}>{title}</h3>
+        <div className="flex items-center justify-between border-b border-[#e4d8c3] bg-[#f7f0e3] p-4">
+          <div><p className="page-kicker">Valley notes</p><h2 id="character-modal-title" className="m-0 font-serif text-2xl font-bold text-[#203f32]">{title}</h2></div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-stone-100 text-stone-400 transition-colors"
+            aria-label="Close character details"
+            className="rounded-full p-2 text-xl text-[#9a8a73] transition-colors hover:bg-[#eadfcd] hover:text-[#5f513e]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -54,13 +56,12 @@ export default function CharacterModal({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto p-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 overflow-y-auto bg-[#fffaf0] p-4">
           {characters && characters.length > 0 ? (
             characters.map((character, i) => (
               <div
                 key={i}
-                className=
-                    "border border-stone-200 rounded-xl p-4 shadow-sm"
+                    className="rounded-xl border border-[#e4d8c3] bg-[#fffdf8] p-4 shadow-sm"
               >
                 <div className="flex items-center gap-4 mb-4">
                   {/* Avatar */}
@@ -92,14 +93,16 @@ export default function CharacterModal({
                 <div className="space-y-4 text-sm">
                   {/* Likes */}
                   <div>
-                    <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block">
+                    <span
+                      className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-[#9a8a73]"
+                    >
                       Loves & Likes
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {character.likes.map((like, i) => (
                         <span
                           key={i}
-                          className="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-md border border-rose-100 text-xs font-medium"
+                          className="rounded-md border border-[#d9aab1] bg-[#f3dede] px-2.5 py-1 text-xs font-medium text-[#843b45]"
                         >
                           {like}
                         </span>
@@ -109,14 +112,16 @@ export default function CharacterModal({
 
                   {/* Dislikes */}
                   <div>
-                    <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block">
+                    <span
+                      className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-[#9a8a73]"
+                    >
                       Dislikes
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {character.dislikes.map((dislike, i) => (
                         <span
                           key={i}
-                          className="px-2.5 py-1 bg-stone-100 text-stone-600 rounded-md border border-stone-200 text-xs font-medium"
+                          className="rounded-md border border-[#eee5d5] bg-[#f5efe2] px-2.5 py-1 text-xs font-medium text-stone-600"
                         >
                           {dislike}
                         </span>

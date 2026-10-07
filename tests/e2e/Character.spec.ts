@@ -72,7 +72,41 @@ describe("Characters page", () => {
       await expect(page.getByText(character.name, { exact: true })).toBeVisible();
     }
 
-    await expect(page.locator(".cursor-pointer")).toHaveCount(characters.length);
+    await expect(page.locator('section[id^="character-"] button[type="button"]')).toHaveCount(characters.length);
+  });
+
+  it("allows the user to filter results by name", async () => {
+    const search = page.getByRole("searchbox", { name: "Search by name" });
+
+    await search.fill("Cliff");
+
+    await expect(page.getByRole("button", { name: "Cliff" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Ann" })).toHaveCount(0);
+    await expect(page.getByText(/^Showing 1 of \d+ neighbors$/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Clear" }).click();
+    await expect(page.getByText("Ann", { exact: true })).toHaveCount(1);
+  });
+
+  it("navigates to the right letter group from the alphabet shortcuts", async () => {
+    await page.getByRole("link", { name: "G", exact: true }).click();
+
+    await expect(page).toHaveURL(/#character-G$/);
+    await expect(page.locator("#character-G")).toBeVisible();
+    await expect(page.locator("#character-G").getByRole("heading", { name: "G" })).toBeVisible();
+    await expect(page.locator("#character-G").getByRole("button", { name: "Gray" })).toBeVisible();
+  });
+
+  it("uses the floating shortcut to return to the filters and alphabet shortcuts", async () => {
+    await page.getByRole("link", { name: "G", exact: true }).click();
+    await expect(page).toHaveURL(/#character-G$/);
+
+    await page.getByRole("link", { name: "Return to character filters and alphabet shortcuts" }).click();
+
+    await expect(page).toHaveURL(/#character-controls$/);
+    await expect(page.locator("#character-controls")).toBeVisible();
+    await expect(page.getByRole("searchbox", { name: "Search by name" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "G", exact: true })).toBeVisible();
   });
 
   it("opens details for the selected character only", async () => {
