@@ -1,0 +1,134 @@
+import { spawn, type ChildProcess } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from "vitest";
+import { chromium, expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
+
+const baseURL = "http://127.0.0.1:4173";
+
+let viteServer: ChildProcess;
+let browser: Browser;
+let context: BrowserContext;
+let page: Page;
+
+async function waitForServer() {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if (viteServer.exitCode !== null) {
+      throw new Error(`Vite exited unexpectedly with code ${viteServer.exitCode}`);
+    }
+
+    try {
+      const response = await fetch(baseURL);
+      if (response.ok) return;
+    } catch {
+      // The server is still starting.
+    }
+
+    await delay(200);
+  }
+
+  throw new Error(`Vite did not start at ${baseURL}`);
+}
+
+function dayCell(day: number) {
+  return page.locator("main .flex.flex-wrap.bg-white").locator(":scope > div").nth(day - 1);
+}
+
+async function plantCrop(cropName: string, plantedDay: number) {
+  await page.getByRole("button", { name: "Plant Crop" }).first().click();
+  await page.locator("#crops").selectOption({ label: cropName });
+  await page.locator("#plantedDay").selectOption(String(plantedDay));
+  await page.getByRole("button", { name: "Plant Crop" }).last().click();
+}
+
+describe("Calendar page", () => {
+  beforeAll(async () => {
+    viteServer = spawn(
+      process.execPath,
+      ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort"],
+      { stdio: "ignore" },
+    );
+    await waitForServer();
+    browser = await chromium.launch({ headless: true });
+  });
+
+  afterAll(async () => {
+    await browser?.close();
+    viteServer?.kill("SIGTERM");
+  });
+
+  beforeEach(async () => {
+    context = await browser.newContext();
+    page = await context.newPage();
+    await page.goto(baseURL);
+    await expect(page.getByRole("heading", { name: "Crop Calendar" })).toBeVisible();
+  });
+
+  afterEach(async () => {
+    await context?.close();
+  });
+
+  it("switches seasons and offers crops for the selected season", async () => {
+    await plantCrop("Turnip", 4);
+    await expect(dayCell(4).getByRole("button", { name: "Turnip" })).toBeVisible();
+
+    await page.locator("#season").selectOption("Summer");
+    await expect(dayCell(4).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Plant Crop" }).first().click();
+
+    await expect(page.getByRole("heading", { name: "Planting in Summer" })).toBeVisible();
+    await expect(page.locator("#crops")).toContainText("Tomato");
+    await expect(page.locator("#crops")).not.toContainText("Turnip");
+  });
+
+  it("plants a crop on the selected day and shows the crop on its planted and harvest dates", async () => {
+    await dayCell(6).click();
+    await plantCrop("Turnip", 6);
+
+    await expect(dayCell(6).getByRole("button", { name: "Turnip" })).toBeVisible();
+    await expect(dayCell(10).getByRole("button", { name: "Turnip" })).toBeVisible();
+    await expect(dayCell(5).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+    await expect(page.locator("#crops")).toBeHidden();
+  });
+
+  it("places each regrowing crop harvest on the correct calendar dates", async () => {
+    // Cucumber takes 9 days for its first harvest and regrows every 5 days.
+    await plantCrop("Cucumber", 3);
+
+    for (const day of [3, 12, 17, 22, 27]) {
+      await expect(dayCell(day).getByRole("button", { name: "Cucumber" })).toBeVisible();
+    }
+
+    for (const day of [11, 13, 16, 18, 21, 23, 26, 28]) {
+      await expect(dayCell(day).getByRole("button", { name: "Cucumber" })).toHaveCount(0);
+    }
+  });
+
+  it("deletes a selected crop from the calendar", async () => {
+    await plantCrop("Turnip", 2);
+    const plantedTurnip = dayCell(2).getByRole("button", { name: "Turnip" });
+    await plantedTurnip.click();
+
+    const deleteButton = page.getByRole("button", { name: "Delete Selected" });
+    await expect(deleteButton).toBeEnabled();
+    await deleteButton.click();
+
+    await expect(plantedTurnip).toHaveCount(0);
+    await expect(dayCell(6).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+  });
+
+  it("keeps the selected-date marker until another date is selected", async () => {
+    await dayCell(8).click();
+    await expect(dayCell(8).locator("span")).toHaveClass(/bg-red-500/);
+
+    await page.reload();
+    await expect(dayCell(8).locator("span")).toHaveClass(/bg-red-500/);
+
+    await page.locator("#season").selectOption("Summer");
+    await expect(dayCell(8).locator("span")).toHaveClass(/bg-red-500/);
+    await expect(dayCell(7).locator("span")).not.toHaveClass(/bg-red-500/);
+
+    await dayCell(11).click();
+    await expect(dayCell(11).locator("span")).toHaveClass(/bg-red-500/);
+    await expect(dayCell(8).locator("span")).not.toHaveClass(/bg-red-500/);
+  });
+});
