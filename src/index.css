@@ -1,1 +1,22 @@
 @import "tailwindcss";
+:root { font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: #263b32; background: #e8dfc9; font-synthesis: none; text-rendering: optimizeLegibility; --ink:#263b32; --muted:#718074; --forest:#315b45; --forest-dark:#203f32; --cream:#fffaf0; --line:#ddcfb4; --season:#5e8a62; --season-soft:#e3efdc; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #e8dfc9; }
+button, select { font: inherit; }
+.bg-app { background: radial-gradient(circle at 20% 0%, #f7f0df 0, #e8dfc9 48%, #ded1b7 100%); }
+.text-ink { color: var(--ink); }
+.text-season-primary { color: var(--season); }
+.bg-season-soft { background: var(--season-soft); }
+.border-season { border-color: color-mix(in srgb, var(--season) 45%, white); }
+.app-shell { position: relative; isolation: isolate; }
+.app-shell::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.22; background-image:radial-gradient(#8c7854 .55px, transparent .55px); background-size:7px 7px; mix-blend-mode:multiply; }
+.app-main { width:min(1180px, 100%); margin:0 auto; padding:0 24px 48px; }
+.page-intro { display:flex; align-items:end; justify-content:space-between; gap:18px; padding:34px 0 22px; }
+.page-kicker { margin:0 0 6px; color:#8a7455; font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+.page-title { margin:0; color:var(--forest-dark); font-family:Georgia, serif; font-size:clamp(1.7rem, 3vw, 2.45rem); line-height:1.05; }
+.page-subtitle { margin:9px 0 0; color:var(--muted); max-width:50ch; font-size:.94rem; }
+main .bg-white { background:color-mix(in srgb, var(--cream) 94%, white); border-color:var(--line); box-shadow:0 10px 30px rgba(74,57,30,.09); }
+main table thead { background:#efe6d3; color:#6c604d; }
+main table tbody tr:hover { background:#f5eedf; }
+main select, main input { border-color:var(--line); border-radius:10px; background:var(--cream); }
+@media (max-width:700px) { .app-main { padding:0 14px 88px; } .page-intro { padding:25px 0 17px; } }

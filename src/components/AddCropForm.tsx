@@ -57,9 +57,8 @@ export default function AddCropFormModal({
     <div className="w-screen fixed top-0 left-0 flex justify-center">
       <div className="absolute w-screen h-screen top-0 left-0 bg-black opacity-50" onClick={hideForm}></div>
 
-      <div className="z-10 w-4/5 bg-white flex flex-col p-4 gap-4 mt-[20vh]">
-        {/* List of crops */}
-        <h3>Planting in {season}</h3>
+      <div className="z-10 mt-[15vh] flex w-[min(92vw,500px)] flex-col gap-4 overflow-hidden rounded-2xl border border-[#ddcfb4] bg-[#fffaf0] p-5 shadow-2xl">
+        <div><p className="page-kicker">New field note</p><h2 className="m-0 font-serif text-2xl font-bold text-[#203f32]">Planting in {season}</h2></div>
 
         {/* Crop input */}
         <div className="flex flex-col gap-2">
@@ -67,7 +66,7 @@ export default function AddCropFormModal({
             {season} crops
           </label>
           <select
-            className="px-4 py-2"
+            className="px-4 py-3"
             id="crops"
             value={selectedCrop}
             onChange={(e) => setSelectedCrop(e.target.value)}
@@ -87,7 +86,7 @@ export default function AddCropFormModal({
             Day (1-30)
           </label>
           <select
-            className="px-4 py-2"
+            className="px-4 py-3"
             id="plantedDay"
             value={plantedDay}
             onChange={(e) => setPlantedDay(Number(e.target.value))}
@@ -101,7 +100,7 @@ export default function AddCropFormModal({
         </div>
 
         {/* Plant */}
-        <button className="px-4 py-2 text-white bg-green-700 disabled:bg-gray-400" onClick={plantCrop} disabled={!selectedCrop}>Plant Crop</button>
+        <button className="rounded-xl bg-[#315b45] px-4 py-3 font-bold text-[#fffaf0] shadow-sm hover:bg-[#203f32] disabled:cursor-not-allowed disabled:bg-[#b8b2a4]" onClick={plantCrop} disabled={!selectedCrop}><span aria-hidden="true">✦</span> Plant Crop</button>
       </div>
     </div>
   );

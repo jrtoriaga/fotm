@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Season } from '../types/app-types';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import type { Season } from '../types/app-types';
 
 type ThemeColors = {
   primary: string; // Text color for headings/highlights
@@ -20,36 +21,20 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const seasonColors: Record<Season, ThemeColors> = {
   Spring: {
-    primary: 'text-pink-600',
-    secondary: 'bg-lime-200',
-    accent: 'border-lime-400',
-    background: 'bg-stone-50',
-    text: 'text-stone-800',
-    navActive: 'text-lime-300',
+    primary: 'text-season-primary', secondary: 'bg-season-soft', accent: 'border-season',
+    background: 'bg-app', text: 'text-ink', navActive: 'text-season-primary',
   },
   Summer: {
-    primary: 'text-sky-600',
-    secondary: 'bg-yellow-200',
-    accent: 'border-sky-400',
-    background: 'bg-stone-50',
-    text: 'text-stone-800',
-    navActive: 'text-yellow-300',
+    primary: 'text-season-primary', secondary: 'bg-season-soft', accent: 'border-season',
+    background: 'bg-app', text: 'text-ink', navActive: 'text-season-primary',
   },
   Fall: {
-    primary: 'text-orange-700',
-    secondary: 'bg-orange-200',
-    accent: 'border-orange-500',
-    background: 'bg-stone-50',
-    text: 'text-stone-800',
-    navActive: 'text-orange-300',
+    primary: 'text-season-primary', secondary: 'bg-season-soft', accent: 'border-season',
+    background: 'bg-app', text: 'text-ink', navActive: 'text-season-primary',
   },
   Winter: {
-    primary: 'text-cyan-700',
-    secondary: 'bg-cyan-100',
-    accent: 'border-cyan-300',
-    background: 'bg-stone-50',
-    text: 'text-stone-800',
-    navActive: 'text-cyan-200',
+    primary: 'text-season-primary', secondary: 'bg-season-soft', accent: 'border-season',
+    background: 'bg-app', text: 'text-ink', navActive: 'text-season-primary',
   },
 };
 

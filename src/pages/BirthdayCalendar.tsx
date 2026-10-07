@@ -39,10 +39,8 @@ export default function BirthdayCalendarPage() {
   }, [season]);
 
   return (
-    <div className="px-4 my-5 pb-10">
-      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
-        Birthdays
-      </h3>
+    <div className="pb-10">
+      <div className="page-intro"><div><p className="page-kicker">Keep the town smiling</p><h1 className="page-title">Birthdays</h1><p className="page-subtitle">Never miss a neighbor’s special day.</p></div></div>
 
       {/* Select */}
       <div className="mb-6 bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">

@@ -42,8 +42,8 @@ export default function CharactersPage() {
   }, [characters]);
 
   return (
-    <div className="p-4 h-[calc(100vh-64px)] overflow-scroll">
-      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>Characters</h3>
+    <div className="h-[calc(100vh-78px)] overflow-scroll">
+      <div className="page-intro"><div><p className="page-kicker">Get to know the valley</p><h1 className="page-title">Characters</h1><p className="page-subtitle">Gift ideas, birthdays, and daily routines for your neighbors.</p></div></div>
 
       {/* Items */}
       <div className="flex flex-col gap-6 pb-10">

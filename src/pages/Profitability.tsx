@@ -1,5 +1,5 @@
 import crops from "../data/crops";
-import { Season } from "../types/app-types";
+import type { Season } from "../types/app-types";
 import clsx from "clsx";
 import { useTheme } from "../context/ThemeContext";
 
@@ -44,10 +44,8 @@ export default function ProfitabilityPage() {
     .sort((a, b) => b.profit - a.profit);
 
   return (
-    <div className="p-4 h-[calc(100vh-64px)] overflow-scroll">
-      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
-        Crop Profitability
-      </h3>
+    <div className="h-[calc(100vh-78px)] overflow-scroll">
+      <div className="page-intro"><div><p className="page-kicker">Make every field count</p><h1 className="page-title">Crop Profitability</h1><p className="page-subtitle">Compare the best earners for your current season.</p></div></div>
 
       {/* Season Selector */}
       <div className="flex gap-2 mb-6 bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">

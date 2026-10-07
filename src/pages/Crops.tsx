@@ -24,10 +24,8 @@ export default function CropsPage() {
   }, []);
 
   return (
-    <div className="mt-6 px-4 h-[calc(100vh-64px-24px)] overflow-hidden">
-      <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
-        Crop Almanac
-      </h3>
+    <div className="h-[calc(100vh-78px)] overflow-hidden">
+      <div className="page-intro"><div><p className="page-kicker">Seeds, seasons & sell prices</p><h1 className="page-title">Crop Almanac</h1><p className="page-subtitle">A tidy reference for every crop in Mineral Town.</p></div></div>
       
       <div className="overflow-y-auto h-[calc(100vh-64px-80px)] pr-2 pb-10">
         <div className="flex flex-col gap-8">

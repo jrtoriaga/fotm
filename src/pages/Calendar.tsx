@@ -103,13 +103,14 @@ function CalendarPage() {
 
   return (
     <>
-      <div className="px-4 my-5 pb-10">
-        <h3 className={clsx("mb-4 text-xl font-bold", colors.primary)}>
-          Crop Calendar
-        </h3>
+      <div className="pb-10">
+        <div className="page-intro">
+          <div><p className="page-kicker">Your farm, at a glance</p><h1 className="page-title">Crop Calendar</h1><p className="page-subtitle">Plan plantings and harvests across a 30-day season.</p></div>
+          <span className="hidden sm:inline-flex rounded-full bg-season-soft px-3 py-1 text-xs font-bold text-season-primary">{season} • 30 days</span>
+        </div>
 
         {/* Controls */}
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
+        <div className="flex flex-wrap gap-3 mb-6 items-center rounded-2xl border border-season bg-white/70 p-3 shadow-sm">
           {/* Season select */}
           <div className="bg-white p-2 rounded-xl shadow-sm w-fit border border-stone-200">
             <select
@@ -132,12 +133,9 @@ function CalendarPage() {
           {/*  Add crop button */}
           <button
             onClick={() => setShowForm(true)}
-            className={clsx(
-              "px-4 py-3 rounded-xl font-bold text-white shadow-sm transition-transform active:scale-95",
-              "bg-green-600 hover:bg-green-700"
-            )}
+            className="rounded-xl bg-[#315b45] px-4 py-3 font-bold text-[#fffaf0] shadow-sm hover:bg-[#203f32]"
           >
-            Plant Crop
+            <span aria-hidden="true">✚</span> Plant Crop
           </button>
 
           {/*  Delete crop button */}
@@ -150,13 +148,13 @@ function CalendarPage() {
             }
             className={clsx(
               "px-4 py-3 rounded-xl font-bold text-white shadow-sm transition-all active:scale-95",
-              selectedCrop 
-                ? "bg-red-500 hover:bg-red-600" 
+                selectedCrop
+                ? "bg-[#a34d3f] hover:bg-[#843b31]"
                 : "bg-stone-300 cursor-not-allowed opacity-50"
             )}
             disabled={!selectedCrop}
           >
-            Delete Selected
+            <span aria-hidden="true">⌫</span> Delete Selected
           </button>
         </div>
 

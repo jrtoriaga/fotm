@@ -28,7 +28,7 @@ export default function CharacterModal({
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-md max-h-[85vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-[#ddcfb4] bg-[#fffaf0] shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
           <h3 className={clsx("text-lg font-bold", colors.primary)}>{title}</h3>
