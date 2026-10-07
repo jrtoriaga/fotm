@@ -8,6 +8,7 @@ const seasonDetails = {
   Spring: { icon: "✿", accent: "#4f8061", soft: "#e5f0e3", panel: "from-[#f5fbf1] to-[#edf6e9]" },
   Summer: { icon: "☀", accent: "#b4772f", soft: "#fff0d6", panel: "from-[#fff9ed] to-[#fff1d8]" },
   Fall: { icon: "❧", accent: "#a95d3b", soft: "#f8e5d9", panel: "from-[#fff4eb] to-[#f8e5d9]" },
+  Winter: { icon: "✧", accent: "#55758c", soft: "#e4edf3", panel: "from-[#f2f7fa] to-[#e3edf3]" },
 } as const;
 
 export default function CropsPage() {
@@ -22,6 +23,7 @@ export default function CropsPage() {
       ["Spring", []],
       ["Summer", []],
       ["Fall", []],
+      ["Winter", []],
     ]);
 
     getAllCrops().forEach((crop) => crops.get(crop.season)?.push(crop));

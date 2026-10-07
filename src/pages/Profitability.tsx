@@ -126,8 +126,6 @@ export default function ProfitabilityPage() {
   const selectedMetrics = selectedCrop
     ? calculateMetrics(selectedCrop, plantingDay, plots)
     : null;
-  const remainingDays = SEASON_DAYS - plantingDay + 1;
-
   return (
     <div className="pb-10">
       <div className="page-intro">
