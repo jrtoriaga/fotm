@@ -108,12 +108,132 @@ describe("Calendar page", () => {
     const plantedTurnip = dayCell(2).getByRole("button", { name: "Turnip" });
     await plantedTurnip.click();
 
-    const deleteButton = page.getByRole("button", { name: "Delete Selected" });
-    await expect(deleteButton).toBeEnabled();
-    await deleteButton.click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+    await modal.getByRole("button", { name: "Delete Turnip" }).click();
+    await expect(page.getByRole("alertdialog")).toContainText("Delete Turnip?");
+    await page.getByRole("alertdialog").getByRole("button", { name: "Delete crop" }).click();
 
     await expect(plantedTurnip).toHaveCount(0);
     await expect(dayCell(6).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+  });
+
+  it("opens the planted crops for a date by double tapping the date or tapping a crop", async () => {
+    await plantCrop("Turnip", 4);
+
+    await dayCell(4).locator("span").first().dblclick();
+    await expect(page.getByRole("dialog")).toContainText("Crops on day 4");
+    await expect(page.getByRole("dialog").getByRole("heading", { name: "Crops planted" })).toBeVisible();
+    await page.getByRole("button", { name: "Close crop inspection" }).last().click();
+
+    await dayCell(4).getByRole("button", { name: "Turnip" }).click();
+    await expect(page.getByRole("dialog")).toContainText("Crops on day 4");
+  });
+
+  it("plants a crop from field notes using the opened date", async () => {
+    await dayCell(9).locator("span").first().dblclick();
+
+    const modal = page.getByRole("dialog");
+    await modal.getByRole("button", { name: "Plant a crop" }).click();
+    await expect(modal.getByRole("heading", { name: "Plant a crop on day 9" })).toBeVisible();
+
+    await modal.locator("#field-notes-crop").selectOption({ label: "Turnip" });
+    await modal.getByRole("button", { name: "Plant Crop" }).click();
+
+    await expect(modal.getByRole("heading", { name: "Plant a crop on day 9" })).toBeVisible();
+    await expect(dayCell(9).getByRole("button", { name: "Turnip" })).toBeVisible();
+    await expect(dayCell(13).getByRole("button", { name: "Turnip" })).toBeVisible();
+    await expect(dayCell(8).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+  });
+
+  it("refreshes the first field-notes card after planting inline", async () => {
+    await dayCell(7).locator("span").first().dblclick();
+
+    const modal = page.getByRole("dialog");
+    await expect(modal.getByRole("heading", { name: "Crops planted" })).toBeVisible();
+    await expect(modal.getByRole("button", { name: "Turnip" })).toHaveCount(0);
+
+    await modal.getByRole("button", { name: "Plant a crop" }).click();
+    await modal.locator("#field-notes-crop").selectOption({ label: "Turnip" });
+    await modal.getByRole("button", { name: "Plant Crop" }).click();
+
+    const plantedCropsCard = modal.getByRole("heading", { name: "Crops planted" }).locator("xpath=ancestor::section");
+    await expect(plantedCropsCard.getByRole("button", { name: "Turnip" })).toBeVisible();
+    await expect(modal.getByText("1", { exact: true })).toBeVisible();
+  });
+
+  it("can hide the inline planting card without closing field notes", async () => {
+    await dayCell(5).locator("span").first().dblclick();
+    const modal = page.getByRole("dialog");
+
+    await modal.getByRole("button", { name: "Plant a crop" }).click();
+    await expect(modal.getByRole("heading", { name: "Plant a crop on day 5" })).toBeVisible();
+    await modal.getByRole("button", { name: "Hide planting card" }).click();
+
+    await expect(modal).toBeVisible();
+    await expect(modal.getByRole("heading", { name: "Plant a crop on day 5" })).toHaveCount(0);
+  });
+
+  it("asks for confirmation before deleting a crop", async () => {
+    await plantCrop("Turnip", 2);
+    await dayCell(2).getByRole("button", { name: "Turnip" }).click();
+
+    const modal = page.getByRole("dialog");
+    await modal.getByRole("button", { name: "Delete Turnip" }).click();
+    const warning = page.getByRole("alertdialog");
+    await expect(warning).toContainText("Delete Turnip?");
+    await warning.getByRole("button", { name: "Cancel" }).click();
+    await expect(modal).toBeVisible();
+    await expect(dayCell(2).getByRole("button", { name: "Turnip" })).toBeVisible();
+  });
+
+  it("asks for confirmation before resetting a season calendar", async () => {
+    await plantCrop("Turnip", 2);
+    await page.getByRole("button", { name: "Reset Calendar" }).click();
+
+    const warning = page.getByRole("alertdialog");
+    await expect(warning).toContainText("Reset Spring calendar?");
+    await expect(warning).toContainText("Other season calendars will not be changed.");
+    await warning.getByRole("button", { name: "Cancel" }).click();
+    await expect(warning).toHaveCount(0);
+    await expect(dayCell(2).getByRole("button", { name: "Turnip" })).toBeVisible();
+  });
+
+  it("cleans up only the selected season calendar", async () => {
+    await plantCrop("Turnip", 2);
+    await page.locator("#season").selectOption("Summer");
+    await plantCrop("Tomato", 3);
+
+    await page.getByRole("button", { name: "Reset Calendar" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Reset calendar" }).click();
+    await expect(dayCell(3).getByRole("button", { name: "Tomato" })).toHaveCount(0);
+
+    await page.locator("#season").selectOption("Spring");
+    await expect(dayCell(2).getByRole("button", { name: "Turnip" })).toBeVisible();
+  });
+
+  it("cleans up all crops from the selected season calendar", async () => {
+    await plantCrop("Turnip", 2);
+    await plantCrop("Parsnip", 8);
+
+    await page.getByRole("button", { name: "Reset Calendar" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Reset calendar" }).click();
+
+    await expect(dayCell(2).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+    await expect(dayCell(6).getByRole("button", { name: "Turnip" })).toHaveCount(0);
+    await expect(dayCell(8).getByRole("button", { name: "Parsnip" })).toHaveCount(0);
+    await expect(dayCell(12).getByRole("button", { name: "Parsnip" })).toHaveCount(0);
+  });
+
+  it("shows crop information after tapping the crop name without leaving the calendar", async () => {
+    await plantCrop("Turnip", 2);
+    await dayCell(2).getByRole("button", { name: "Turnip" }).click();
+
+    const modal = page.getByRole("dialog");
+    await expect(modal.getByRole("heading", { name: "Turnip" })).toBeVisible();
+    await expect(modal).toContainText("First harvest");
+    await expect(modal).toContainText("4 days");
+    await expect(page.getByRole("heading", { name: "Crop Calendar" })).toBeVisible();
   });
 
   it("keeps the selected-date marker until another date is selected", async () => {

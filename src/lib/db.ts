@@ -60,3 +60,16 @@ export async function deleteCropById(cropId: number){
     console.log(err);
   }
 }
+
+export async function deleteAllCropsBySeason(season: Season) {
+  try {
+    const db = await getDB();
+    const tx = db.transaction("crops", "readwrite");
+    const crops = await tx.store.index("by_season").getAll(season);
+
+    await Promise.all(crops.map((crop) => tx.store.delete(crop.id!)));
+    await tx.done;
+  } catch (err) {
+    console.log(err);
+  }
+}
