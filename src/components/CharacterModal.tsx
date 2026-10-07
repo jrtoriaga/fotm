@@ -59,11 +59,8 @@ export default function CharacterModal({
             characters.map((character, i) => (
               <div
                 key={i}
-                className={clsx(
-                  "bg-white",
-                  characters.length > 1 &&
+                className=
                     "border border-stone-200 rounded-xl p-4 shadow-sm"
-                )}
               >
                 <div className="flex items-center gap-4 mb-4">
                   {/* Avatar */}

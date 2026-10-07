@@ -39,9 +39,7 @@ async function waitForServer() {
 }
 
 function seasonSection(season: Season) {
-  return page
-    .locator(".overflow-y-auto > .flex > div")
-    .filter({ has: page.getByText(season, { exact: true }) });
+  return page.locator(`[data-season="${season}"]`);
 }
 
 describe("Crops page", () => {
@@ -86,8 +84,8 @@ describe("Crops page", () => {
 
   it("groups crops under their correct season headings in season order", async () => {
     const renderedSeasons = await page
-      .locator(".overflow-y-auto > .flex > div > div:first-child")
-      .allTextContents();
+      .locator("[data-season]")
+      .evaluateAll((sections) => sections.map((section) => section.getAttribute("data-season")));
 
     expect(renderedSeasons).toEqual(seasons.filter((season) => crops.some((crop) => crop.season === season)));
 
@@ -100,7 +98,7 @@ describe("Crops page", () => {
         continue;
       }
 
-      await expect(section.getByRole("heading", { name: season })).toHaveCount(0);
+      await expect(section.getByRole("heading", { name: season })).toHaveCount(1);
       await expect(section.getByText(season, { exact: true })).toBeVisible();
 
       for (const crop of seasonCrops) {
