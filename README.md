@@ -1,13 +1,18 @@
-# 🌾 FOTM Crop Calendar
+# 🌾 Mineral Town Field Journal
 
-A web app for **Harvest Moon: Friends of Mineral Town** and **Harvest Moon: Friends of Mineral Town** that helps you manage crops, track harvest schedules, and remember important village events.
+A responsive web app for **Harvest Moon: Friends of Mineral Town** and **Story of Seasons: Friends of Mineral Town**. Use it to plan crops, track harvests, check birthdays, look up villagers, and compare seasonal crop profits.
 
 ## ✨ Features
-- 📅 Track crops planted and their harvest dates  
-- 🎂 View villagers' birthdays and gift preferences  
-- 📶 Works offline (PWA support)
+- 📅 **Crop calendar:** Choose a season and day, inspect crops planted for a date, add planting notes, delete individual notes, or reset a season.
+- 🌱 **Crop almanac:** Browse crop data for Spring, Summer, Fall, and Winter, including harvest time, regrowth time, seed cost, and sell price.
+- 💰 **Profitability guide:** Compare crops by projected harvests, revenue, seed costs, total profit, and profit per day based on planting day and plot count.
+- 🎂 **Birthday calendar:** Browse villagers' birthdays by season and open detailed birthday and gift-preference information.
+- 👥 **Character directory:** Search and filter neighbors, jump by alphabet, and open accessible character detail modals.
+- 🎨 **Seasonal UI:** Shared season and calendar-day state across pages, with themed styling for all four seasons.
+- 📶 **Installable and offline-ready:** PWA support with automatic updates, standalone installation, and cached app assets.
+- 💾 **Persistent notes:** Crop entries are stored locally in IndexedDB, while selected season and calendar day are remembered in browser storage.
 
-> ⚠️ **Note:** This app is currently optimized for **mobile viewing**. Desktop support is limited.
+> ⚠️ **Note:** The interface is designed mobile-first and also supports larger screens.
 
 
 ## 📦 Installation
@@ -30,7 +35,25 @@ pnpm build
 
 # Preview production build
 pnpm preview
+
+# Run lint checks
+pnpm lint
+
+# Run the test suite
+pnpm test
 ```
+
+## 🧭 App pages
+
+The app is organized into the following routes:
+
+- `/` — Crop Calendar
+- `/birthdays` — Birthday Calendar
+- `/crops` — Crop Almanac
+- `/profitability` — Crop Profitability
+- `/characters` — Character Directory
+
+The test suite includes end-to-end coverage for navigation, shared calendar state, birthdays, crop interactions, character search and modals, and profitability calculations.
 
 ## 🤝 Contributing
 
